@@ -18,6 +18,8 @@ _clear                              | bool  | false                        | Cle
 ## Usage
     rosrun localmapper localmapper _radius:=3
     
-## Publish To
+## Publishes to
+
+/local_map or /global_map
 
 
