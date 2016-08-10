@@ -10,7 +10,7 @@ add_definitions(-std=c++11)
 find_package(OpenCV  REQUIRED)
 include_directories(include)
 
-find_package(Eigen 3 REQUIRED) # On some distribs this requires Eigen3 module
+find_package(Eigen3 REQUIRED) # On some distribs this requires Eigen3 module
 include_directories(${EIGEN_INCLUDE_DIRS})
 
 find_package(catkin COMPONENTS
