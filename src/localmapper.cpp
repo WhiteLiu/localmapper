@@ -196,6 +196,18 @@ int main(int argc, char *argv[])
     nh_private.param("base_frame",base_frame_,std::string("base_footprint"));
     nh_private.param("clear",clear_global_map,false);
 
+    double pmiss, phit;
+
+    nh_private.param("pmiss",pmiss,0.1);
+    nh_private.param("phit",phit,0.8);
+
+
+    ROS_INFO_STREAM("Probabilities hit " << phit << " miss "<<pmiss);
+
+
+    map_.set_prob_miss(pmiss);
+    map_.set_prob_hit(phit);
+
 
     if(local_radius > 0.0)
         occupancy2d_pub_ = nh_private.advertise<nav_msgs::OccupancyGrid>("local_map", 1,true);

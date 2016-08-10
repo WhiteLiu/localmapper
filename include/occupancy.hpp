@@ -43,10 +43,6 @@ struct scan2d
 
 struct occupancy2d
 {
-public:
-
-    float default_prob_miss = 0.4;
-    float default_prob_hit = 0.7;
 
 public:
 
@@ -54,20 +50,23 @@ public:
         width_(0),
         height_(0),
         resolution_(0.0),
+        window_(100),
         origin_(Eigen::Isometry3d::Identity())
     {
-        width_ = 1024;
+        /*width_ = 1024;
         height_ = 1024;
         origin_(0,3) = -20.0;
         origin_(1,3) = -20.0;
-        data_.resize(width_*height_,std::numeric_limits<float>::quiet_NaN());
+        data_.resize(width_*height_,std::numeric_limits<float>::quiet_NaN());*/
     }
 
 
     occupancy2d(float resolution):
         width_(0),
         height_(0),
-        resolution_(resolution)
+        resolution_(resolution),
+        window_(100),
+        origin_(Eigen::Isometry3d::Identity())
     {
     }
 
@@ -127,11 +126,33 @@ public:
     }
 
 
+    float set_prob_miss(float p)
+    {
+        prob_miss_ = p;
+        log_prob_miss_ = logodds(prob_miss_);
+    }
+    float set_prob_hit(float p)
+    {
+        prob_hit_ = p;
+        log_prob_hit_ = logodds(prob_hit_);
+    }
+
+
+private:
+
+    float prob_miss_ = 0.1;
+    float prob_hit_ = 0.8;
+
+    float log_prob_miss_ = logodds(0.1);
+    float log_prob_hit_ = logodds(0.8);
+
+
 public:
 
     int width_ = 0;
     int height_ = 0;
     float resolution_ = 0.0;
+    int window_= 30;
     std::vector<float> data_; // We store the log of the probabilty
     Eigen::Isometry3d origin_ = Eigen::Isometry3d::Identity();
 };

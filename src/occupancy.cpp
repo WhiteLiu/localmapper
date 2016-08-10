@@ -134,7 +134,9 @@ void occupancy2d::update(const scan2d & scan)
 
         // Copy the old map
         for(int i = 0 ; i < height_; ++i)
+        {
             std::copy(&data_[i*width_], &data_[(i)*width_]+width_,  &update[offset_x + (offset_y + i)*new_width]);
+        }
 
         data_ = update;
         width_ = new_width;
@@ -211,9 +213,13 @@ void occupancy2d::update(const scan2d & scan)
         {
             // Update Free space
             if(std::isnan(data_[s]))
-                data_[s]=logodds(0.2);
+            {
+                data_[s]=log_prob_miss_;
+            }
             else
-                data_[s]+=logodds(0.2);
+            {
+                data_[s]+=log_prob_miss_;
+            }
         }
     }
 
@@ -224,12 +230,15 @@ void occupancy2d::update(const scan2d & scan)
             continue;
         }
 
-
         // Update occupied space
         if(std::isnan(data_[s]))
-            data_[s]=logodds(0.7);
+        {
+            data_[s]=log_prob_hit_;
+        }
         else
-            data_[s]+=logodds(0.7);
+        {
+            data_[s]+=log_prob_hit_;
+        }
     }
 }
 
