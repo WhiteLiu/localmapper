@@ -46,8 +46,7 @@ scan2d::scan2d(const cv::Mat & depth,const Eigen::Projective3d & K, const Eigen:
                 Eigen::Vector3f v = backproject(Kf,float(j)/width,float(i)/height)*Z;
 
                 // Warp to map //
-                Eigen::Vector3f vw =  warpf.rotation()*v;
-
+                Eigen::Vector3f vw =  warpf*v;
 
                 /*std::cout<<width<<"  "<<height<<std::endl;
                 std::cout<<Kf.matrix()<<std::endl;
@@ -58,6 +57,9 @@ scan2d::scan2d(const cv::Mat & depth,const Eigen::Projective3d & K, const Eigen:
                 // if point is in range
                 if(vw(2) >= range.first && vw(2) < range.second)
                 {
+                    vw -= warpf.translation();
+
+
                     // Transform to range //
                     float theta = std::atan2(vw(1),vw(0))+M_PI;
 
