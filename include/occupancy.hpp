@@ -128,23 +128,32 @@ public:
 
     float set_prob_miss(float p)
     {
-        prob_miss_ = p;
-        log_prob_miss_ = logodds(prob_miss_);
+        log_prob_miss_ = logodds(p);
     }
     float set_prob_hit(float p)
     {
-        prob_hit_ = p;
-        log_prob_hit_ = logodds(prob_hit_);
+        log_prob_hit_ = logodds(p);
+    }
+    float set_prob_low(float p)
+    {
+        log_prob_low_ = logodds(p);
+    }
+    float set_prob_up(float p)
+    {
+        log_prob_up_ = logodds(p);
     }
 
 
 private:
 
-    float prob_miss_ = 0.1;
-    float prob_hit_ = 0.8;
+    float log_prob_miss_ = logodds(0.3);
+    float log_prob_hit_ = logodds(0.7);
 
-    float log_prob_miss_ = logodds(0.1);
-    float log_prob_hit_ = logodds(0.8);
+
+    float log_prob_low_ = logodds(0.1);
+    float log_prob_up_ = logodds(1.0);
+
+
 
 
 public:

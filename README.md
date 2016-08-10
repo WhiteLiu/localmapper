@@ -13,8 +13,10 @@ _radius                             | float | 0.0                          | Rad
 _odom_frame                         | string| odom                         | Odom frame
 _base_frame                         | string| base_footprint               | Base 2D footprint
 _clear                              | bool  | false                        | Clear the global map when extracting the local map (currently broken)
-_pmiss                              | double  | 0.1                        | Free space probability update
-_phit                               | double  | 0.8                        | Occupied space probability update
+_pmiss                              | double  | 0.3                        | Free space probability update
+_phit                               | double  | 0.7                        | Occupied space probability update
+_plow                              | double  | 0.1                         | Minimum probality clamping
+_pup                               | double  | 1.0                         | Maximum probality clamping
 
 
 ## Usage

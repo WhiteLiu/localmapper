@@ -218,7 +218,7 @@ void occupancy2d::update(const scan2d & scan)
             }
             else
             {
-                data_[s]+=log_prob_miss_;
+                data_[s] = std::max(data_[s] + log_prob_miss_,log_prob_low_);
             }
         }
     }
@@ -237,7 +237,7 @@ void occupancy2d::update(const scan2d & scan)
         }
         else
         {
-            data_[s]+=log_prob_hit_;
+            data_[s] = std::min(data_[s] + log_prob_hit_,log_prob_up_);
         }
     }
 }

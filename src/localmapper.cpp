@@ -196,17 +196,22 @@ int main(int argc, char *argv[])
     nh_private.param("base_frame",base_frame_,std::string("base_footprint"));
     nh_private.param("clear",clear_global_map,false);
 
-    double pmiss, phit;
+    double pmiss, phit,plow,pup;
 
-    nh_private.param("pmiss",pmiss,0.1);
-    nh_private.param("phit",phit,0.8);
+    nh_private.param("pmiss",pmiss,0.3);
+    nh_private.param("phit",phit,0.7);
+
+    nh_private.param("plow",plow,0.1);
+    nh_private.param("pup",pup,1.0);
 
 
-    ROS_INFO_STREAM("Probabilities hit " << phit << " miss "<<pmiss);
+    ROS_INFO_STREAM("Probabilities hit " << phit << " miss "<<pmiss<<" "<<" low "<<plow<<" up "<<pup);
 
 
     map_.set_prob_miss(pmiss);
     map_.set_prob_hit(phit);
+    map_.set_prob_low(plow);
+    map_.set_prob_up(pup);
 
 
     if(local_radius > 0.0)
