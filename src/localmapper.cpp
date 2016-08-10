@@ -195,6 +195,8 @@ int main(int argc, char *argv[])
     nh_private.param("odom_frame",odom_frame_,std::string("odom"));
     nh_private.param("base_frame",base_frame_,std::string("base_footprint"));
     nh_private.param("clear",clear_global_map,false);
+    nh_private.param("occupancy2d_zmin",range_.first,0.f);
+    nh_private.param("occupancy2d_zmax",range_.second,0.1f);
 
     double pmiss, phit,plow,pup;
 
