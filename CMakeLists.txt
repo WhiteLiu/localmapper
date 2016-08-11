@@ -37,6 +37,8 @@ DEPENDS system_lib
 add_executable(localmapper src/localmapper.cpp src/occupancy.cpp include/occupancy.hpp README.md package.xml)
 TARGET_LINK_LIBRARIES(localmapper ${OpenCV_LIBS} ${catkin_LIBRARIES})
 
+add_executable(scanlaser src/scanlaser.cpp src/occupancy.cpp include/occupancy.hpp README.md package.xml)
+TARGET_LINK_LIBRARIES(scanlaser ${OpenCV_LIBS} ${catkin_LIBRARIES})
 
 #############
 ## Install ##
