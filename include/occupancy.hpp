@@ -104,19 +104,19 @@ struct occupancy2d
         return data_[idx];
     }
 
-    float set_prob_miss( float p )
+    void set_prob_miss( float p )
     {
         log_prob_miss_ = logodds( p );
     }
-    float set_prob_hit( float p )
+    void set_prob_hit( float p )
     {
         log_prob_hit_ = logodds( p );
     }
-    float set_prob_low( float p )
+    void set_prob_low( float p )
     {
         log_prob_low_ = logodds( p );
     }
-    float set_prob_up( float p )
+    void set_prob_up( float p )
     {
         log_prob_up_ = logodds( p );
     }
