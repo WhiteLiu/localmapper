@@ -35,7 +35,7 @@ std::string base_frame_;
 double tf_timeout_ = 5.0;
 double local_radius = 0.0;
 bool clear_global_map = false;
-std::pair< float, float > range_ = {0.0, 0.5};
+std::pair< float, float > range_ = {0.0, 0.17};
 
 Eigen::Projective3d fromCameraInfo( const sensor_msgs::CameraInfoConstPtr& info )
 {
@@ -184,7 +184,7 @@ int main( int argc, char* argv[] )
     nh_private.param( "base_frame", base_frame_, std::string( "base_footprint" ) );
     nh_private.param( "clear", clear_global_map, false );
     nh_private.param( "occupancy2d_zmin", range_.first, 0.f );
-    nh_private.param( "occupancy2d_zmax", range_.second, 0.1f );
+    nh_private.param( "occupancy2d_zmax", range_.second, 0.17f );
 
     double pmiss, phit, plow, pup;
 

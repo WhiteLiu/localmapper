@@ -40,7 +40,7 @@ std::string base_frame_;
 double tf_timeout_ = 5.0;
 double local_radius = 0.0;
 bool clear_global_map = false;
-std::pair<float,float> range_ = {0.0,0.5};
+std::pair< float, float > range_ = {0.0, 0.17};
 
 
 Eigen::Projective3d fromCameraInfo(const sensor_msgs::CameraInfoConstPtr& info)
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
     scan_pub = nh.advertise<sensor_msgs::LaserScan>("/scan180", 1);
 
     std::string depth_topic;
-    nh_private.param("depth",depth_topic,std::string("/naoqi_driver/camera/depth/image_raw"));
+    nh_private.param( "depth", depth_topic, std::string( "/camera/depth_registred/image_raw" ) );
     std::string depth_transport;
     nh_private.param("depth_transport",depth_transport,std::string("compressedDepth"));
     ROS_INFO_STREAM("Transport " << depth_transport);
@@ -212,6 +212,8 @@ int main(int argc, char *argv[])
 
     nh_private.param("plow",plow,0.1);
     nh_private.param("pup",pup,1.0);
+    nh_private.param( "occupancy2d_zmin", range_.first, 0.01f );
+    nh_private.param( "occupancy2d_zmax", range_.secondc, 0.17f );
 
 
     ROS_INFO_STREAM("Probabilities hit " << phit << " miss "<<pmiss<<" "<<" low "<<plow<<" up "<<pup);
