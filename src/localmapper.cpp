@@ -117,8 +117,8 @@ void on_new_depth_message( const sensor_msgs::Image::ConstPtr& depth_image_msg,
 {
     cv::Mat depth = cv_bridge::toCvShare( depth_image_msg )->image.clone();
 
-    cv::imshow( "DepthMap", depth );
-    cv::waitKey( 5 );
+    // cv::imshow( "DepthMap", depth );
+    // cv::waitKey( 5 );
 
     // Get the the transform that maps a camera point to the odom frame
     tf::StampedTransform camera_to_odom;

@@ -124,8 +124,6 @@ bool safe_lookup(tf::StampedTransform &trans, tf::TransformListener& L, const st
 void on_new_depth_message(const sensor_msgs::Image::ConstPtr& depth_image_msg,const sensor_msgs::CameraInfoConstPtr& depth_info)
 {
 
-    std::cout<<"Get new depth images"<<std::endl;
-
     cv::Mat depth = cv_bridge::toCvShare(depth_image_msg)->image.clone();
 
     // Get the the transform that maps a camera point to the odom frame
