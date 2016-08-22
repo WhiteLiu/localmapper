@@ -104,29 +104,45 @@ struct occupancy2d
         return data_[idx];
     }
 
-    void set_prob_miss( float p )
+    inline void set_prob_miss( float p )
     {
-        log_prob_miss_ = logodds( p );
+        assert( 0. <= p && p <= 1. );
+        prob_miss_ = p;
     }
-    void set_prob_hit( float p )
+    inline void set_prob_hit( float p )
     {
-        log_prob_hit_ = logodds( p );
+        assert( 0. <= p && p <= 1. );
+        prob_hit_ = p;
     }
-    void set_prob_low( float p )
+    inline void set_prob_low( float p )
     {
+        assert( 0. <= p && p <= 1. );
         log_prob_low_ = logodds( p );
     }
-    void set_prob_up( float p )
+    inline void set_prob_up( float p )
     {
+        assert( 0. <= p && p <= 1. );
         log_prob_up_ = logodds( p );
     }
 
+    inline void set_range_min( float range_min )
+    {
+        range_min_ = range_min;
+    }
+    inline void set_range_max( float range_max )
+    {
+        range_max_ = range_max;
+    }
+
     private:
-    float log_prob_miss_ = logodds( 0.3 );
-    float log_prob_hit_ = logodds( 0.7 );
+    float prob_miss_ = 0.4;
+    float prob_hit_ = 0.7;
 
     float log_prob_low_ = logodds( 0.1 );
-    float log_prob_up_ = logodds( 1.0 );
+    float log_prob_up_ = logodds( 1. );
+
+    float range_min_ = 0.5;
+    float range_max_ = 10;
 
     public:
     int width_ = 0;

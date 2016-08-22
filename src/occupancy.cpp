@@ -140,8 +140,19 @@ void occupancy2d::update( const scan2d &scan )
         origin_( 1, 3 ) = new_mini( 1 );
     }
 
-    std::unordered_set< int > free_cells;
-    std::unordered_set< int > occupied_cells;
+
+    struct pair_hash
+    {
+        inline std::size_t operator()( const std::pair< int, float > &v ) const
+        {
+            return v.first;
+        }
+    };
+    std::unordered_set< std::pair< int, float >, pair_hash > free_cells;
+    std::unordered_set< std::pair< int, float >, pair_hash > occupied_cells;
+    constexpr float sigma2w = 2.59993 * 2.59993;
+    constexpr float sigma2theta = 0.292431 * 0.292431;
+    float coef = 0.6;
 
     for ( size_t i = 0; i < scan.data.size(); ++i )
     {
@@ -151,7 +162,7 @@ void occupancy2d::update( const scan2d &scan )
         if ( rho > 0.0 )
         {
             float theta = float( i ) * scan.resolution - M_PI;
-
+            float theta2 = theta * theta;
             // Convert start and end points to map pixel coords //
             int x1 = std::round( ( rho * std::cos( theta ) + scan.origin( 0 ) - origin_( 0, 3 ) ) / resolution_ );
             int y1 = std::round( ( rho * std::sin( theta ) + scan.origin( 1 ) - origin_( 1, 3 ) ) / resolution_ );
@@ -159,8 +170,27 @@ void occupancy2d::update( const scan2d &scan )
             int y0 = std::round( ( scan.origin( 1 ) - origin_( 1, 3 ) ) / resolution_ );
 
             // Setup occupied cells
-            if ( w > 0.0 )
-                occupied_cells.insert( x1 + y1 * width_ );
+            float dist = sqrt( ( x1 - x0 ) * ( x1 - x0 ) + ( y1 - y0 ) * ( y1 - y0 ) ) * resolution_ - range_min_;
+            int index = x1 + y1 * width_;
+            if ( dist >= 0. && 0 <= index && index < data_.size() )
+            {
+                std::pair< int, float > candidate = {
+                    index,
+                    logodds( prob_hit_ -
+                             ( prob_hit_ - 0.5 ) * ( 1. - ( coef / 2. * std::exp( -( dist * dist ) / sigma2w ) +
+                                                            ( 1. - coef ) / 2. * std::exp( -theta2 / sigma2theta ) ) ) )};
+
+                auto it = occupied_cells.find( candidate );
+                if ( it != occupied_cells.end() )
+                {
+                    if ( candidate.second > it->second )
+                        occupied_cells.insert( occupied_cells.erase( it ), candidate );
+                }
+                else
+                {
+                    occupied_cells.insert( candidate );
+                }
+            }
 
             // Raytrace the free cells
             int dx = std::abs( x1 - x0 );
@@ -176,7 +206,26 @@ void occupancy2d::update( const scan2d &scan )
 
             for ( ; n > 1; --n )
             {
-                free_cells.insert( x + y * width_ );
+                dist = sqrt( ( x - x0 ) * ( x - x0 ) + ( y - y0 ) * ( y - y0 ) ) * resolution_ - range_min_;
+                index = x + y * width_;
+                if ( dist >= 0 && 0 <= index && index < data_.size() )
+                {
+                    std::pair< int, float > candidate = {
+                        index,
+                        logodds( prob_miss_ -
+                                 ( prob_miss_ - 0.5 ) * ( 1. - ( coef / 2. * std::exp( -( dist * dist ) / sigma2w ) +
+                                                                 ( 1. - coef ) / 2. * std::exp( -theta2 / sigma2theta ) ) ) )};
+                    auto it = free_cells.find( candidate );
+                    if ( it != free_cells.end() )
+                    {
+                        if ( candidate.second < it->second )
+                            free_cells.insert( free_cells.erase( it ), candidate );
+                    }
+                    else
+                    {
+                        free_cells.insert( candidate );
+                    }
+                }
 
                 if ( error > 0 )
                 {
@@ -192,43 +241,21 @@ void occupancy2d::update( const scan2d &scan )
         }
     }
 
-    for ( int s : free_cells )
+    for ( auto cell : free_cells )
     {
-        if ( size_t( s ) >= data_.size() || s < 0 )
+        if ( occupied_cells.count( cell ) )
         {
             continue;
         }
-
-        if ( !occupied_cells.count( s ) )
-        {
-            // Update Free space
-            if ( std::isnan( data_[s] ) )
-            {
-                data_[s] = log_prob_miss_;
-            }
-            else
-            {
-                data_[s] = std::max( data_[s] + log_prob_miss_, log_prob_low_ );
-            }
-        }
+        float &p = data_[cell.first];
+        p = std::isnan( p ) ? cell.second : std::max( p + cell.second, log_prob_low_ );
     }
 
-    for ( int s : occupied_cells )
+    for ( auto cell : occupied_cells )
     {
-        if ( size_t( s ) >= data_.size() || s < 0 )
-        {
-            continue;
-        }
-
+        float &p = data_[cell.first];
         // Update occupied space
-        if ( std::isnan( data_[s] ) )
-        {
-            data_[s] = log_prob_hit_;
-        }
-        else
-        {
-            data_[s] = std::min( data_[s] + log_prob_hit_, log_prob_up_ );
-        }
+        p = std::isnan( p ) ? cell.second : std::min( p + cell.second, log_prob_up_ );
     }
 }
 
