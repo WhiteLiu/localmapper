@@ -25,7 +25,7 @@
 #include "occupancy.hpp"
 
 int count( 0 );
-occupancy2d map_;
+Occupancy2d map_( 0.05f );
 ros::Publisher occupancy2d_pub_;
 std::shared_ptr< tf::TransformListener > tfl_;
 
@@ -64,7 +64,7 @@ geometry_msgs::Pose toRosMsg( const Eigen::Isometry3d& p )
     return out;
 }
 
-void publish( const std::string& frame_id, const occupancy2d& map, const ros::Time& stamp )
+void publish( const std::string& frame_id, const Occupancy2d& map, const ros::Time& stamp )
 {
     nav_msgs::OccupancyGrid::Ptr occ( new nav_msgs::OccupancyGrid );
 
@@ -117,6 +117,14 @@ void on_new_depth_message( const sensor_msgs::Image::ConstPtr& depth_image_msg,
 {
     cv::Mat depth = cv_bridge::toCvShare( depth_image_msg )->image.clone();
 
+    static std::vector< float > weight;
+    static cv::Size weight_size = {0, 0};
+    if ( depth.size() != weight_size )
+    {
+        weight_size = depth.size();
+        initPixelRadialWeightLUT( weight_size.width, weight_size.height, weight );
+    }
+
     // cv::imshow( "DepthMap", depth );
     // cv::waitKey( 5 );
 
@@ -138,16 +146,15 @@ void on_new_depth_message( const sensor_msgs::Image::ConstPtr& depth_image_msg,
 
     // Get normalized camera matrix
     Eigen::Projective3d K = fromCameraInfo( depth_info );
-
     // Update map //
-    map_.update( scan2d( depth, K, CamToOdom, range_ ) );
+    map_.update( Scan2d( depth, K, CamToOdom, range_, cv::Mat( depth.size(), CV_32F, weight.data() ) ) );
 
     if ( local_radius > 0.0 )
     {
         Eigen::Isometry3d BaseToOdom = CamToOdom * CamToBase.inverse();
 
         // Warp local map if any to the new base location
-        occupancy2d local = map_.warpFrom( BaseToOdom, local_radius, clear_global_map );
+        Occupancy2d local = map_.warpFrom( BaseToOdom, local_radius, clear_global_map );
 
         // Publish local map //
         publish( base_frame_, local, depth_image_msg->header.stamp );
@@ -176,31 +183,38 @@ int main( int argc, char* argv[] )
     nh_private.param( "depth_transport", depth_transport, std::string( "raw" ) );
     ROS_INFO_STREAM( "Transport " << depth_transport );
 
+    float map_resolution;
     int queue_size;
     nh_private.param( "queue", queue_size, 5 );
     nh_private.param( "radius", local_radius, 3.0 );
-    nh_private.param( "resolution", map_.resolution_, 0.05f );
+    nh_private.param( "resolution", map_resolution, 0.05f );
+
     nh_private.param( "odom_frame", odom_frame_, std::string( "odom" ) );
     nh_private.param( "base_frame", base_frame_, std::string( "base_footprint" ) );
     nh_private.param( "clear", clear_global_map, false );
     nh_private.param( "occupancy2d_zmin", range_.first, 0.f );
     nh_private.param( "occupancy2d_zmax", range_.second, 0.17f );
 
-    double pmiss, phit, plow, pup;
+    double p_miss_min, p_miss_max, p_hit_min, p_hit_max, p_low, p_up;
 
-    nh_private.param( "pmiss", pmiss, 0.3 );
-    nh_private.param( "phit", phit, 0.7 );
+    nh_private.param( "p_miss_min", p_miss_min, 0.5 );
+    nh_private.param( "p_miss_max", p_miss_max, 0.7 );
 
-    nh_private.param( "plow", plow, 0.1 );
-    nh_private.param( "pup", pup, 1.0 );
+    nh_private.param( "p_hit_min", p_hit_min, 0.5 );
+    nh_private.param( "p_hit_max", p_hit_max, 0.7 );
 
-    ROS_INFO_STREAM( "Probabilities hit " << phit << " miss " << pmiss << " "
-                                          << " low " << plow << " up " << pup );
+    nh_private.param( "p_low", p_low, 0.1 );
+    nh_private.param( "p_up", p_up, 1.0 );
 
-    map_.set_prob_miss( pmiss );
-    map_.set_prob_hit( phit );
-    map_.set_prob_low( plow );
-    map_.set_prob_up( pup );
+    ROS_INFO_STREAM( "Probabilities : hit [" << p_hit_min << ", " << p_hit_max << "]; miss [" << p_miss_min << ", "
+                                             << p_miss_max << "]; bound [" << p_low << ", " << p_up << "]" );
+    map_ = Occupancy2d( map_resolution );
+    map_.set_prob_miss_min( p_miss_min );
+    map_.set_prob_miss_max( p_miss_max );
+    map_.set_prob_hit_min( p_hit_min );
+    map_.set_prob_hit_max( p_hit_max );
+    map_.set_prob_lower_bound( p_low );
+    map_.set_prob_upper_bound( p_up );
 
     if ( local_radius > 0.0 )
         occupancy2d_pub_ = nh_private.advertise< nav_msgs::OccupancyGrid >( "local_map", 1, true );
