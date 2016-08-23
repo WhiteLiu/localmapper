@@ -15,16 +15,16 @@ inline Eigen::Matrix< T, 3, 1 > backproject( const Eigen::Transform< T, 3, Eigen
 
 /// compute log-odds from probability:
 template < class T >
-inline T logodds( T probability )
+inline constexpr T logodds( T probability )
 {
-    return (float)std::log( probability / ( 1 - probability ) );
+    return static_cast< T >( std::log( probability / ( 1 - probability ) ) );
 }
 
 /// compute probability from logodds:
 template < class T >
-inline T probability( T logodds )
+inline constexpr T probability( T logodds )
 {
-    return 1. - ( 1. / ( 1. + std::exp( logodds ) ) );
+    return static_cast< T >( 1. - ( 1. / ( 1. + std::exp( logodds ) ) ) );
 }
 
 struct scan2d
