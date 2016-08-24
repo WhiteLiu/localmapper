@@ -78,7 +78,7 @@ class Occupancy2d
         int iu = std::floor( u );
         int iv = std::floor( v );
         size_t idx = iu + iv * width_;
-        assert( idx < data_.size() );
+        assert( idx + width_ + 1 < data_.size() );
 
         float alpha_u = u - static_cast< float >( iu );
         float alpha_v = v - static_cast< float >( iv );
