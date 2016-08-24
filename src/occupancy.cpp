@@ -2,7 +2,7 @@
 
 struct UpdateCellCandidate
 {
-    int cell_index;
+    size_t cell_index;
     float log_prob_update;
 };
 
@@ -18,9 +18,9 @@ inline bool operator!=( const UpdateCellCandidate &lhs, const UpdateCellCandidat
 
 struct UpdateCellCandidateHash
 {
-    inline std::size_t operator()( const UpdateCellCandidate &v ) const
+    inline size_t operator()( const UpdateCellCandidate &v ) const
     {
-        return static_cast< std::size_t >( v.cell_index );
+        return v.cell_index;
     }
 };
 
@@ -243,7 +243,7 @@ void Occupancy2d::update( const Scan2d &scan )
             int y0 = std::round( ( scan.origin( 1 ) - origin_( 1, 3 ) ) / resolution_ );
 
             // Setup occupied cells
-            int occ_index = x1 + y1 * width_;
+            size_t occ_index = x1 + y1 * width_;
             if ( 0 <= occ_index && occ_index < data_.size() )
             {
                 float map_dist = sqrt( ( x1 - x0 ) * ( x1 - x0 ) + ( y1 - y0 ) * ( y1 - y0 ) );
@@ -276,7 +276,7 @@ void Occupancy2d::update( const Scan2d &scan )
 
             for ( int x = x0, y = y0; n > 1; --n )
             {
-                int occ_index = x + y * width_;
+                size_t occ_index = x + y * width_;
                 if ( 0 <= occ_index && occ_index < data_.size() )
                 {
                     float map_dist = sqrt( ( x - x0 ) * ( x - x0 ) + ( y - y0 ) * ( y - y0 ) );

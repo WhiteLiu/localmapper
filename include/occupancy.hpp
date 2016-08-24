@@ -78,9 +78,9 @@ class Occupancy2d
 
     inline float bilinear( float u, float v ) const
     {
-        int idx = iu + iv * width_;
         int iu = std::floor( u );
         int iv = std::floor( v );
+        size_t idx = iu + iv * width_;
         assert( idx < data_.size() );
 
         float alpha_u = u - static_cast< float >( iu );
@@ -93,7 +93,7 @@ class Occupancy2d
     {
         int iu = std::round( u );
         int iv = std::round( v );
-        int idx = iu + iv * width_;
+        size_t idx = iu + iv * width_;
         assert( idx < data_.size() );
 
         return data_[idx];
@@ -179,8 +179,8 @@ inline bool Occupancy2d::getLogProb( float confidence_prob_min, float confidence
     log_prob = -1.f;
 
     float world_dist_w_offset = map_dist * resolution_ - range_min_;
-    int lut_index = std::round( world_dist_w_offset / resolution_ );
-    if ( 0. <= lut_index && lut_index < lut_rho_.size() )
+    size_t lut_index = std::round( world_dist_w_offset / resolution_ );
+    if ( 0 <= lut_index && lut_index < lut_rho_.size() )
     {
         log_prob = logodds( confidence_prob_max -
                             ( confidence_prob_max - confidence_prob_min ) * ( 1.f - lut_rho_[lut_index] * scan_weight ) );
