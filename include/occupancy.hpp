@@ -101,36 +101,36 @@ class Occupancy2d
 
     inline void set_prob_miss_min( float p )
     {
-        assert( 0.f <= p && p <= 1.f );
+        assert( 0.f < p && p <= 1.f );
         prob_miss_min_ = 1.f - p;
     }
 
     inline void set_prob_miss_max( float p )
     {
-        assert( 0.f <= p && p <= 1.f );
+        assert( 0.f < p && p <= 1.f );
         prob_miss_max_ = 1.f - p;
     }
 
     inline void set_prob_hit_min( float p )
     {
-        assert( 0.f <= p && p <= 1.f );
+        assert( 0.f < p && p <= 1.f );
         prob_hit_min_ = p;
     }
 
     inline void set_prob_hit_max( float p )
     {
-        assert( 0.f <= p && p <= 1.f );
+        assert( 0.f < p && p <= 1.f );
         prob_hit_max_ = p;
     }
 
     inline void set_prob_lower_bound( float p )
     {
-        assert( 0.f <= p && p <= 1.f );
+        assert( 0.f < p && p <= 1.f );
         log_prob_lower_bound_ = logodds( p );
     }
     inline void set_prob_upper_bound( float p )
     {
-        assert( 0.f <= p && p <= 1.f );
+        assert( 0.f < p && p <= 1.f );
         log_prob_upper_bound_ = logodds( p );
     }
 
