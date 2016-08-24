@@ -1,5 +1,9 @@
 #include "occupancy.hpp"
 
+#include <Eigen/Core>
+
+#include <unordered_set>
+
 struct UpdateCellCandidate
 {
     size_t cell_index;

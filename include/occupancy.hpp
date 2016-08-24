@@ -1,9 +1,6 @@
 #ifndef LOCALMAPPER_OCCUPANCY_HPP
 #define LOCALMAPPER_OCCUPANCY_HPP
 
-#include <unordered_set>
-
-#include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
 
