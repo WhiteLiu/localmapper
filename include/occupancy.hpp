@@ -134,15 +134,12 @@ class Occupancy2d
         log_prob_upper_bound_ = logodds( p );
     }
 
-    inline void set_range_min( float range_min )
+    inline void set_range( float range_min, float range_max )
     {
-        assert( 0.f <= range_min );
+        assert( 0.f <= range_min && range_min < range_max );
         range_min_ = range_min;
-    }
-    inline void set_range_max( float range_max )
-    {
-        assert( 0.f <= range_max );
         range_max_ = range_max;
+        initLutRho( range_min_, range_max_, resolution_, lut_rho_ );
     }
 
     private:
