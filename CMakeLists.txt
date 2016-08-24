@@ -5,7 +5,7 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_BUILD_TYPE Release)
 
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -Wall -Werror -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-result -Wno-deprecated-declarations)
 
 find_package(OpenCV  REQUIRED)
 include_directories(include)
