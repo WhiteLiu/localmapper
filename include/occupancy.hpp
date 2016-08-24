@@ -78,9 +78,9 @@ class Occupancy2d
 
     inline float bilinear( float u, float v ) const
     {
-        int iu = std::round( u );
-        int iv = std::round( v );
         int idx = iu + iv * width_;
+        int iu = std::floor( u );
+        int iv = std::floor( v );
         assert( idx < data_.size() );
 
         float alpha_u = u - static_cast< float >( iu );
