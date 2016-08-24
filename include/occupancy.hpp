@@ -149,8 +149,8 @@ class Occupancy2d
     static void getMinMaxFromScam( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi );
     static void initLutRho( int range_min, int range_max, float resolution, std::vector< float > &lut_rho,
                             float perCentWeightAtMaxRange = 0.05f );
-    bool getLogProb( float confidence_prob_min, float confidence_prob_max, float map_dist, float scan_weight,
-                     float &log_prob ) const;
+    inline bool getLogProb( float confidence_prob_min, float confidence_prob_max, float map_dist, float scan_weight,
+                            float &log_prob ) const;
 
     private:
     float prob_miss_min_ = 1.f - 0.5f;
@@ -174,5 +174,23 @@ class Occupancy2d
     Eigen::Isometry3d origin_ = Eigen::Isometry3d::Identity();
     std::vector< float > data_;  // We store the log of the probabilty
 };
+
+inline bool Occupancy2d::getLogProb( float confidence_prob_min, float confidence_prob_max, float map_dist, float scan_weight,
+                                     float &log_prob ) const
+{
+    bool ret = false;
+    log_prob = -1.f;
+
+    float world_dist_w_offset = map_dist * resolution_ - range_min_;
+    int lut_index = std::round( world_dist_w_offset / resolution_ );
+    if ( 0. <= lut_index && lut_index < lut_rho_.size() )
+    {
+        log_prob = logodds( confidence_prob_max -
+                            ( confidence_prob_max - confidence_prob_min ) * ( 1.f - lut_rho_[lut_index] * scan_weight ) );
+        ret = true;
+    }
+
+    return ret;
+}
 
 #endif
