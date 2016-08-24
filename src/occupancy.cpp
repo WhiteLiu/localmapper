@@ -357,7 +357,7 @@ Occupancy2d Occupancy2d::warpFrom( const Eigen::Isometry3d &warp, double max_dis
                 float x = ( vw( 0 ) - origin_( 0, 3 ) ) / resolution_;
                 float y = ( vw( 1 ) - origin_( 1, 3 ) ) / resolution_;
 
-                if ( x >= 0 && y >= 0 && x < width_ - 1 && y < height_ - 1 )
+                if ( x >= 0 && y >= 0 && std::ceil( x ) < width_ && std::ceil( y ) < height_ )
                 {
                     new_mini = new_mini.min( Eigen::Array2f( vw( 0 ), vw( 1 ) ) );
                     new_maxi = new_maxi.max( Eigen::Array2f( vw( 0 ), vw( 1 ) ) );
