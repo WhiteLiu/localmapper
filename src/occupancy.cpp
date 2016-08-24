@@ -30,9 +30,9 @@ void initPixelRadialWeightLUT( int width, int height, std::vector< float > &lut,
     lut.reserve( height * width );
     float sigma2 = sqrt( height * height + width * width ) / ( -2. * std::log( per_cent_weight_at_edge ) );
 
-    for ( int x = 0; x < width; ++x )
+    for ( int y = 0; y < height; ++y )
     {
-        for ( int y = 0; y < height; ++y )
+        for ( int x = 0; x < width; ++x )
         {
             float y_rel = y - height / 2;
             float x_rel = x - width / 2;
