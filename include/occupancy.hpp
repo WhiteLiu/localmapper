@@ -146,7 +146,7 @@ class Occupancy2d
     }
 
     private:
-    static void getMinMaxFromScam( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi );
+    static void getMinMaxFromScan( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi );
     static void initLutRho( int range_min, int range_max, float resolution, std::vector< float > &lut_rho,
                             float perCentWeightAtMaxRange = 0.05f );
     inline bool getLogProb( float confidence_prob_min, float confidence_prob_max, float map_dist, float scan_weight,

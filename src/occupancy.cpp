@@ -137,7 +137,7 @@ Occupancy2d::Occupancy2d( const Occupancy2d &rhs ) : Occupancy2d( rhs.width_, rh
     data_ = rhs.data_;
 }
 
-void Occupancy2d::getMinMaxFromScam( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi )
+void Occupancy2d::getMinMaxFromScan( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi )
 {
     // Get min/max
     scan_mini( 1e9, 1e9 );
@@ -182,7 +182,7 @@ void Occupancy2d::initLutRho( int range_min, int range_max, float resolution, st
 void Occupancy2d::update( const Scan2d &scan )
 {
     Eigen::Array2f scan_mini, scan_maxi;
-    getMinMaxFromScam( scan, scan_mini, scan_maxi );
+    getMinMaxFromScan( scan, scan_mini, scan_maxi );
 
     Eigen::Array2f map_mini = Eigen::Array2f( origin_( 0, 3 ), origin_( 1, 3 ) );
     Eigen::Array2f map_maxi = map_mini + Eigen::Array2f( static_cast< float >( width_ ) * resolution_,
