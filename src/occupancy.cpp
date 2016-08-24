@@ -140,8 +140,8 @@ Occupancy2d::Occupancy2d( const Occupancy2d &rhs ) : Occupancy2d( rhs.width_, rh
 void Occupancy2d::getMinMaxFromScan( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi )
 {
     // Get min/max
-    scan_mini( 1e9, 1e9 );
-    scan_maxi( -1e9, -1e9 );
+    scan_mini = Eigen::Array2f( 1e9, 1e9 );
+    scan_maxi = Eigen::Array2f( -1e9, -1e9 );
 
     // Get min/max of 2D scan within the map
     for ( size_t i = 0; i < scan.data.size(); ++i )
