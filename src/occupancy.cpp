@@ -377,9 +377,6 @@ Occupancy2d Occupancy2d::warpFrom( const Eigen::Isometry3d &warp, double max_dis
         int new_width = std::round( ( new_maxi( 0 ) - new_mini( 0 ) ) / resolution_ );
         int new_height = std::round( ( new_maxi( 1 ) - new_mini( 1 ) ) / resolution_ );
 
-        std::cout << "New " << new_width << " " << new_height << std::endl;
-        std::cout << "Prev " << width_ << " " << height_ << std::endl;
-
         int offset_x = std::round( ( map_mini( 0 ) - new_mini( 0 ) ) / resolution_ );
         int offset_y = std::round( ( map_mini( 1 ) - new_mini( 1 ) ) / resolution_ );
 
