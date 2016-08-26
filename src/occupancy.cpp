@@ -238,7 +238,7 @@ void Occupancy2d::update( const Scan2d &scan )
             unsigned char &status = cell_status.at< unsigned char >( y1_off, x1_off );
             float &prob = prob_update.at< float >( y1_off, x1_off );
 
-            if ( status == unset )
+            if ( status != occupied )
             {
                 status = occupied;
                 prob = new_prob;
