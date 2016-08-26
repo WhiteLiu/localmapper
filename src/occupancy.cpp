@@ -247,6 +247,10 @@ void Occupancy2d::update( const Scan2d &scan )
             {
                 prob = new_prob;
             }
+            else
+            {
+                continue;
+            }
         }
 
         int dx = std::abs( x1 - x0 );
