@@ -3,6 +3,7 @@
 
 #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
+#include <functional>
 
 template < class T >
 inline Eigen::Matrix< T, 3, 1 > backproject( const Eigen::Transform< T, 3, Eigen::Projective > &K, T u, T v )
@@ -26,6 +27,45 @@ inline constexpr T probability( T logodds )
 
 void initPixelRadialWeightLUT( int width, int height, std::vector< float > &lut, float per_cent_weight_at_edge = 0.05f );
 
+class RhoWeightProbability
+{
+    private:
+    struct
+    {
+        float min;
+        float threshold;
+        float max;
+    } range_;
+    float pc_at_threshold_;
+    float lut_resolution_;
+    std::vector< float > lut_;
+
+    public:
+    RhoWeightProbability( float range_min, float range_threshold, float range_max, float lut_resolution,
+                          float per_cent_weight_at_threshold_range = 0.05 )
+      : range_( {range_min, range_threshold, range_max} ), lut_resolution_( lut_resolution )
+    {
+        assert( 0 <= range_min && range_min <= range_threshold && range_threshold <= range_max );
+
+        float sigma2w =
+            -( range_.threshold * range_.threshold - 2. * range_.threshold * range_.min + range_.min * range_.min ) /
+            std::log( per_cent_weight_at_threshold_range );
+        int size = static_cast< int >( range_.max / lut_resolution_ );
+        lut_.reserve( size );
+        for ( int i = 0; i < size; ++i )
+        {
+            float dist = i * lut_resolution_ - range_.min;
+            lut_.push_back( std::exp( -( dist * dist ) / sigma2w ) );
+        }
+    }
+
+    inline float operator()( float rho ) const
+    {
+        assert( 0.f <= rho );
+        return ( rho <= range_.max ) ? lut_[static_cast< size_t >( rho / lut_resolution_ )] : 0.f;
+    }
+};
+
 struct Scan2d
 {
     struct Sample
@@ -45,9 +85,11 @@ struct Scan2d
 class Occupancy2d
 {
     public:
+    static const std::function< float(float)> rho_prob_func_default;
     Occupancy2d() = delete;
-    Occupancy2d( float resolution );
-    Occupancy2d( int width, int height, float resolution, const Eigen::Isometry3d &origin );
+    Occupancy2d( float resolution, const std::function< float(float)> &rho_prob_func = rho_prob_func_default );
+    Occupancy2d( int width, int height, float resolution, const Eigen::Isometry3d &origin,
+                 const std::function< float(float)> &rho_prob_func = rho_prob_func_default );
 
     Occupancy2d( const Occupancy2d &rhs );
 
@@ -131,20 +173,8 @@ class Occupancy2d
         log_prob_upper_bound_ = logodds( p );
     }
 
-    inline void set_range( float range_min, float range_max )
-    {
-        assert( 0.f <= range_min && range_min < range_max );
-        range_min_ = range_min;
-        range_max_ = range_max;
-        initLutRho( range_min_, range_max_, resolution_, lut_rho_ );
-    }
-
     private:
-    static void getMinMaxFromScan( const Scan2d &scan, Eigen::Array2f &scan_mini, Eigen::Array2f &scan_maxi );
-    static void initLutRho( int range_min, int range_max, float resolution, std::vector< float > &lut_rho,
-                            float perCentWeightAtMaxRange = 0.05f );
-    inline bool getLogProb( float confidence_prob_min, float confidence_prob_max, float map_dist, float scan_weight,
-                            float &log_prob ) const;
+    inline float getProb( float confidence_prob_min, float confidence_prob_max, float dist, float scan_weight ) const;
 
     private:
     float prob_miss_min_ = 1.f - 0.5f;
@@ -156,9 +186,6 @@ class Occupancy2d
     float log_prob_lower_bound_ = logodds( 0.1f );
     float log_prob_upper_bound_ = logodds( 1.f );
 
-    float range_min_ = 0.5f;
-    float range_max_ = 10.f;
-
     std::vector< float > lut_rho_;
 
     public:
@@ -166,25 +193,14 @@ class Occupancy2d
     int height_ = 0;
     float resolution_ = 0.f;
     Eigen::Isometry3d origin_ = Eigen::Isometry3d::Identity();
+    std::function< float(float)> rho_prob_func_;
+
     std::vector< float > data_;  // We store the log of the probabilty
 };
 
-inline bool Occupancy2d::getLogProb( float confidence_prob_min, float confidence_prob_max, float map_dist, float scan_weight,
-                                     float &log_prob ) const
+inline float Occupancy2d::getProb( float confidence_prob_min, float confidence_prob_max, float dist, float scan_weight ) const
 {
-    bool ret = false;
-    log_prob = -1.f;
-
-    float world_dist_w_offset = map_dist * resolution_ - range_min_;
-    size_t lut_index = std::round( world_dist_w_offset / resolution_ );
-    if ( 0 <= lut_index && lut_index < lut_rho_.size() )
-    {
-        log_prob = logodds( confidence_prob_max -
-                            ( confidence_prob_max - confidence_prob_min ) * ( 1.f - lut_rho_[lut_index] * scan_weight ) );
-        ret = true;
-    }
-
-    return ret;
+    return confidence_prob_max - ( confidence_prob_max - confidence_prob_min ) * ( 1.f - rho_prob_func_( dist ) * scan_weight );
 }
 
 #endif

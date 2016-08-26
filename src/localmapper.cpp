@@ -208,7 +208,7 @@ int main( int argc, char* argv[] )
 
     ROS_INFO_STREAM( "Probabilities : hit [" << p_hit_min << ", " << p_hit_max << "]; miss [" << p_miss_min << ", "
                                              << p_miss_max << "]; bound [" << p_low << ", " << p_up << "]" );
-    map_ = Occupancy2d( map_resolution );
+    map_ = Occupancy2d( map_resolution, RhoWeightProbability( 0.5, 5., 10., map_resolution, 0.05 ) );
     map_.set_prob_miss_min( p_miss_min );
     map_.set_prob_miss_max( p_miss_max );
     map_.set_prob_hit_min( p_hit_min );
