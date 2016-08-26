@@ -43,7 +43,7 @@ Scan2d::Scan2d( const cv::Mat &depth, const Eigen::Projective3d &K, const Eigen:
                 const std::pair< float, float > &range, const cv::Mat &weight )
 {
     bool weighted = !weight.empty();
-    if ( depth.type() != CV_16U || ( weighted && weight.type() != CV_32F ) )
+    if ( depth.type() != CV_16U )
     {
         throw std::runtime_error( "Invalid input depth format" );
     }
