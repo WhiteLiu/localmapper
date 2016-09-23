@@ -183,7 +183,7 @@ int main( int argc, char* argv[] )
     scan_pub = nh.advertise< sensor_msgs::LaserScan >( "/scan180", 1 );
 
     std::string depth_topic;
-    nh_private.param( "depth", depth_topic, std::string( "/camera/depth_registred/image_raw" ) );
+    nh_private.param( "depth", depth_topic, std::string( "/camera/depth_registered/image_raw" ) );
     std::string depth_transport;
     nh_private.param( "depth_transport", depth_transport, std::string( "compressedDepth" ) );
     ROS_INFO_STREAM( "Transport " << depth_transport );
